@@ -106,8 +106,8 @@ describe('Notification Routes', () => {
         { id: '2', message: 'Test notification 2', createdAt: new Date() }
       ];
 
-      fastify.prisma.notification.findMany.mockResolvedValue(mockNotifications);
-      fastify.prisma.notification.count.mockResolvedValue(2);
+      (fastify.prisma.notification.findMany as any).mockResolvedValue(mockNotifications);
+      (fastify.prisma.notification.count as any).mockResolvedValue(2);
 
       // Create a new fastify instance with mocked authentication
       const testFastify = Fastify({ logger: false });
@@ -121,7 +121,7 @@ describe('Notification Routes', () => {
           const { page = 1, limit = 20, unreadOnly = false } = request.query as any;
           const skip = (page - 1) * limit;
 
-          const where: any = { userId: request.user.id };
+          const where: any = { userId: (request.user as any).id };
           if (unreadOnly) {
             where.readAt = null;
           }
@@ -181,7 +181,7 @@ describe('Notification Routes', () => {
 
   describe('POST /read/:id', () => {
     it('should mark notification as read when authenticated', async () => {
-      fastify.prisma.notification.updateMany.mockResolvedValue({ count: 1 });
+      (fastify.prisma.notification.updateMany as any).mockResolvedValue({ count: 1 });
 
       // Create a new fastify instance with mocked authentication
       const testFastify = Fastify({ logger: false });
@@ -196,7 +196,7 @@ describe('Notification Routes', () => {
           const { id } = request.params as { id: string };
 
           const updated = await fastify.prisma.notification.updateMany({
-            where: { id, userId: request.user.id },
+            where: { id, userId: (request.user as any).id },
             data: { readAt: new Date() },
           });
 
@@ -223,7 +223,7 @@ describe('Notification Routes', () => {
 
   describe('GET /stats', () => {
     it('should return notification statistics when authenticated', async () => {
-      fastify.prisma.notification.count
+      (fastify.prisma.notification.count as any)
         .mockResolvedValueOnce(10) // total count
         .mockResolvedValueOnce(3); // unread count
 
@@ -236,17 +236,17 @@ describe('Notification Routes', () => {
           // Simulate authenticated user
           request.user = { id: 'user-123' };
 
-          const [total, unread] = await Promise.all([
-            fastify.prisma.notification.count({
-              where: { userId: request.user.id }
-            }),
-            fastify.prisma.notification.count({
-              where: { 
-                userId: request.user.id,
-                readAt: null
-              }
-            })
-          ]);
+        const [total, unread] = await Promise.all([
+          fastify.prisma.notification.count({
+            where: { userId: (request.user as any).id }
+          }),
+          fastify.prisma.notification.count({
+            where: { 
+              userId: (request.user as any).id,
+              readAt: null
+            }
+          })
+        ]);
 
           return reply.send({
             total,
