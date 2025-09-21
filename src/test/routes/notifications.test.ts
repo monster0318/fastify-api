@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import Fastify, { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 
+// Notification Routes Tests
 describe('Notification Routes', () => {
   let fastify: FastifyInstance;
 
@@ -99,6 +100,7 @@ describe('Notification Routes', () => {
     vi.clearAllMocks();
   });
 
+  // Test cases for notification routes
   describe('GET /', () => {
     it('should return notifications with pagination when authenticated', async () => {
       const mockNotifications = [
