@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # Main API Application
+  api:
+    build: .
+    container_name: capital-marketplace-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: file:./data/prod.db
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-me}
+      MAX_UPLOAD_SIZE_BYTES: ${MAX_UPLOAD_SIZE_BYTES:-8000000}
+      # Optional external services
+      KNOCK_API_KEY: ${KNOCK_API_KEY:-}
+      ABLY_API_KEY: ${ABLY_API_KEY:-}
+      VIRUS_TOTAL_API_KEY: ${VIRUS_TOTAL_API_KEY:-}
+    ports:
+      - "${API_PORT:-4000}:4000"
+    volumes:
+      - uploads_data:/app/uploads
+      - database_data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  uploads_data:
+    driver: local
+  database_data:
+    driver: local

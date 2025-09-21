@@ -1,0 +1,54 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String         @default("Unknown")
+  email         String         @unique
+  password      String
+  createdAt     DateTime       @default(now())
+  companies     Company[]
+  notifications Notification[]
+}
+
+model Company {
+  id               String     @id @default(cuid())
+  userId           String
+  name             String
+  sector           String?
+  targetRaise      Float?
+  revenue          Float        @default(0)
+  kycVerified      Boolean      @default(false)
+  financialsLinked Boolean      @default(false)
+  createdAt        DateTime     @default(now()) 
+  user             User         @relation(fields: [userId], references: [id])
+  documents        Document[]
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  companyId String
+  name      String
+  mimeType  String
+  size      Int
+  path      String
+  createdAt DateTime @default(now())
+  company   Company  @relation(fields: [companyId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  message   String
+  createdAt DateTime @default(now())
+  readAt    DateTime?
+  user      User     @relation(fields: [userId], references: [id])
+}
