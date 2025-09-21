@@ -91,26 +91,22 @@ run_migrations() {
     log_info "Waiting for container to be ready..."
     sleep 30
     
-    # Check if container is running and healthy
-    local max_wait=120
+    # Check if container is running (don't wait for health check since DB doesn't exist yet)
+    local max_wait=60
     local wait_time=0
     
     while [ $wait_time -lt $max_wait ]; do
         if docker-compose -f "$COMPOSE_FILE" ps api | grep -q "Up"; then
-            log_info "Container is running. Checking health..."
-            # Try to connect to the container and check if the app is responding
-            if docker-compose -f "$COMPOSE_FILE" exec -T api node -e "require('http').get('http://localhost:4000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })" 2>/dev/null; then
-                log_info "Container is ready for migrations!"
-                break
-            fi
+            log_info "Container is running. Ready for migrations!"
+            break
         fi
-        log_info "Waiting for container to be ready... (${wait_time}s/${max_wait}s)"
+        log_info "Waiting for container to be running... (${wait_time}s/${max_wait}s)"
         sleep 10
         wait_time=$((wait_time + 10))
     done
     
     if [ $wait_time -ge $max_wait ]; then
-        log_error "Container did not become ready within ${max_wait} seconds"
+        log_error "Container did not start within ${max_wait} seconds"
         log_error "Container logs:"
         docker-compose -f "$COMPOSE_FILE" logs api
         return 1
