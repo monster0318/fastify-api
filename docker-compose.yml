@@ -12,17 +12,17 @@ services:
       DATABASE_URL: file:./data/prod.db
       JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-me}
       MAX_UPLOAD_SIZE_BYTES: ${MAX_UPLOAD_SIZE_BYTES:-8000000}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001}
       # Optional external services
       KNOCK_API_KEY: ${KNOCK_API_KEY:-}
-      ABLY_API_KEY: ${ABLY_API_KEY:-}
-      VIRUS_TOTAL_API_KEY: ${VIRUS_TOTAL_API_KEY:-}
+      KNOCK_WORKFLOW_ID: ${KNOCK_WORKFLOW_ID:-}
     ports:
       - "${API_PORT:-4000}:4000"
     volumes:
       - uploads_data:/app/uploads
       - database_data:/app/data
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
       interval: 30s
       timeout: 10s
       retries: 3

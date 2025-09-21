@@ -31,7 +31,7 @@ WORKDIR /app
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN adduser --system --uid 1001 fastify
 
 # Copy built application
 COPY --from=builder /app/dist ./dist
@@ -40,11 +40,11 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/prisma ./prisma
 
 # Create uploads directory and database directory
-RUN mkdir -p uploads && chown -R nextjs:nodejs uploads
-RUN mkdir -p data && chown -R nextjs:nodejs data
+RUN mkdir -p uploads && chown -R fastify:nodejs uploads
+RUN mkdir -p data && chown -R fastify:nodejs data
 
 # Set user
-USER nextjs
+USER fastify
 
 # Expose port
 EXPOSE 4000
