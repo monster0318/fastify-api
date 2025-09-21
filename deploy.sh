@@ -82,14 +82,81 @@ restart_services() {
 
 run_migrations() {
     log_info "Running database migrations..."
-    docker-compose -f "$COMPOSE_FILE" exec api npx prisma migrate deploy
-    log_info "Migrations completed!"
+    
+    # Wait for container to be ready
+    log_info "Waiting for container to be ready..."
+    sleep 15
+    
+    # Check if container is running and healthy
+    local max_wait=60
+    local wait_time=0
+    
+    while [ $wait_time -lt $max_wait ]; do
+        if docker-compose -f "$COMPOSE_FILE" ps api | grep -q "Up"; then
+            log_info "Container is running. Checking health..."
+            # Try to connect to the container
+            if docker-compose -f "$COMPOSE_FILE" exec -T api node -e "console.log('Container ready')" 2>/dev/null; then
+                log_info "Container is ready for migrations!"
+                break
+            fi
+        fi
+        log_info "Waiting for container to be ready... (${wait_time}s/${max_wait}s)"
+        sleep 5
+        wait_time=$((wait_time + 5))
+    done
+    
+    if [ $wait_time -ge $max_wait ]; then
+        log_error "Container did not become ready within ${max_wait} seconds"
+        return 1
+    fi
+    
+    # Run migrations with retry logic
+    local max_attempts=3
+    local attempt=1
+    
+    while [ $attempt -le $max_attempts ]; do
+        log_info "Migration attempt $attempt/$max_attempts..."
+        if docker-compose -f "$COMPOSE_FILE" exec -T api npx prisma migrate deploy; then
+            log_info "Migrations completed!"
+            return 0
+        else
+            log_warn "Migration attempt $attempt failed. Retrying in 10 seconds..."
+            sleep 10
+            ((attempt++))
+        fi
+    done
+    
+    log_error "All migration attempts failed!"
+    return 1
 }
 
 seed_database() {
     log_info "Seeding database..."
-    docker-compose -f "$COMPOSE_FILE" exec api npx prisma db seed
-    log_info "Database seeded!"
+    
+    # Check if container is running and ready
+    if ! docker-compose -f "$COMPOSE_FILE" ps api | grep -q "Up"; then
+        log_error "Container is not running. Cannot seed database."
+        return 1
+    fi
+    
+    # Run seeding with retry logic
+    local max_attempts=3
+    local attempt=1
+    
+    while [ $attempt -le $max_attempts ]; do
+        log_info "Seeding attempt $attempt/$max_attempts..."
+        if docker-compose -f "$COMPOSE_FILE" exec -T api npx prisma db seed; then
+            log_info "Database seeded!"
+            return 0
+        else
+            log_warn "Seeding attempt $attempt failed. Retrying in 10 seconds..."
+            sleep 10
+            ((attempt++))
+        fi
+    done
+    
+    log_error "All seeding attempts failed!"
+    return 1
 }
 
 show_logs() {
