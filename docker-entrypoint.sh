@@ -5,14 +5,17 @@ set -e
 if [ "$(id -u)" = "0" ]; then
     echo "Running as root, fixing permissions..."
     
-    # Create data directory if it doesn't exist
+    # Create data directory if it doesn't exist and set permissions
+    echo "Creating data directory with proper permissions..."
     mkdir -p /app/data
+    chown fastify:nodejs /app/data
+    chmod 755 /app/data
     
     # Fix permissions for data directory
     if [ -d "/app/data" ]; then
         echo "Fixing data directory permissions..."
         chown -R fastify:nodejs /app/data
-        chmod -R 775 /app/data
+        chmod -R 755 /app/data
     fi
     
     # Fix permissions for uploads directory  
