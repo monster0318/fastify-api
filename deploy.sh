@@ -14,7 +14,6 @@ NC='\033[0m' # No Color
 # Configuration
 COMPOSE_FILE="docker-compose.yml"
 ENV_FILE=".env"
-FASTIFY_UID=1001 # User ID of the 'fastify' user defined in the Dockerfile
 
 # Functions
 log_info() {
@@ -57,25 +56,6 @@ check_requirements() {
     log_info "Requirements check passed!"
 }
 
-# --- New function to fix bind mount permissions ---
-fix_permissions() {
-    log_info "Fixing bind mount permissions..."
-    local data_path="./data"
-    local uploads_path="./uploads"
-    
-    if [ ! -d "$data_path" ]; then
-        log_warn "Data directory '$data_path' does not exist. Creating it..."
-        mkdir -p "$data_path"
-    fi
-    if [ ! -d "$uploads_path" ]; then
-        log_warn "Uploads directory '$uploads_path' does not exist. Creating it..."
-        mkdir -p "$uploads_path"
-    fi
-
-    log_info "Setting owner of '$data_path' and '$uploads_path' to UID $FASTIFY_UID..."
-    sudo chown -R $FASTIFY_UID:$FASTIFY_UID "$data_path" "$uploads_path"
-    log_info "Permissions fixed!"
-}
 
 build_images() {
     log_info "Building Docker image..."
@@ -225,7 +205,6 @@ case "${1:-help}" in
         ;;
     "start")
         check_requirements
-        fix_permissions  # Added this call
         start_services
         run_migrations
         ;;
@@ -237,7 +216,6 @@ case "${1:-help}" in
         ;;
     "deploy")
         check_requirements
-        fix_permissions  # Added this call
         build_images
         stop_services
         start_services
