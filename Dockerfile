@@ -39,9 +39,11 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/prisma ./prisma
 
-# Copy and setup entrypoint script
+# Copy and setup scripts
 COPY ./docker-entrypoint.sh /usr/local/bin/
+COPY ./start.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/start.sh
 
 # Install su-exec for user switching
 RUN apk add --no-cache su-exec
@@ -62,4 +64,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 # Start the application
-CMD ["node", "dist/src/server.js"]
+CMD ["start.sh"]

@@ -202,7 +202,6 @@ case "${1:-help}" in
     "start")
         check_requirements
         start_services
-        run_migrations
         ;;
     "stop")
         stop_services
@@ -215,8 +214,6 @@ case "${1:-help}" in
         build_images
         stop_services
         start_services
-        run_migrations
-        seed_database
         log_info "Deployment completed successfully!"
         ;;
     "migrate")
