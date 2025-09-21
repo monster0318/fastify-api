@@ -29,4 +29,4 @@ services:
       timeout: 10s
       retries: 3
 
-# Remove the 'volumes' section from the bottom of the file entirely.
+# No volumes section at the bottom is needed when using bind mounts.
