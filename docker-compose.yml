@@ -19,16 +19,14 @@ services:
     ports:
       - "${API_PORT:-4000}:4000"
     volumes:
-      - uploads_data:/app/uploads
-      - database_data:/app/data
+      # Map a local 'uploads' directory to the container
+      - ./uploads:/app/uploads
+      # Map a local 'data' directory to the container
+      - ./data:/app/data
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:4000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
       interval: 30s
       timeout: 10s
       retries: 3
 
-volumes:
-  uploads_data:
-    driver: local
-  database_data:
-    driver: local
+# Remove the 'volumes' section from the bottom of the file entirely.

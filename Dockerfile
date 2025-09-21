@@ -29,7 +29,7 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
-# Create non-root user
+# Create non-root user and group
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 fastify
 
@@ -38,13 +38,6 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/prisma ./prisma
-
-# Create uploads directory and database directory
-RUN mkdir -p uploads && chown -R fastify:nodejs uploads
-RUN mkdir -p data && chown -R fastify:nodejs data
-
-# Set user
-USER fastify
 
 # Expose port
 EXPOSE 4000
@@ -57,6 +50,12 @@ ENV DATABASE_URL=file:./data/prod.db
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
   CMD node -e "require('http').get('http://localhost:4000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+
+# Use an entrypoint script to fix permissions as root before running as 'fastify'
+# This is the key change to fix the named volume permissions issue
+COPY ./docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT ["docker-entrypoint.sh"]
 
 # Start the application
 CMD ["node", "dist/server.js"]
