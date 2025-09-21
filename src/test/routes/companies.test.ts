@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import Fastify from 'fastify';
+import Fastify, { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 
 describe('Company Routes', () => {
-  let fastify: any;
+  let fastify: FastifyInstance;
   let mockRequireAuth: any;
   let mockValidateBody: any;
   let mockGetUserCompany: any;
@@ -31,8 +31,8 @@ describe('Company Routes', () => {
     fastify.decorate('prisma', mockPrisma);
     
     // Register routes with mocked dependencies
-    await fastify.register(async (fastify) => {
-      fastify.post('/', async (request, reply) => {
+    await fastify.register(async (fastify: FastifyInstance) => {
+      fastify.post('/', async (request: FastifyRequest, reply: FastifyReply) => {
         const authUser = mockRequireAuth(request, reply);
         if (!authUser) {
           reply.status(401).send({ error: 'Not authenticated' });
@@ -74,7 +74,7 @@ describe('Company Routes', () => {
         }
       });
 
-      fastify.get('/', async (request, reply) => {
+      fastify.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
         const authenticatedUser = mockRequireAuth(request, reply);
         if (!authenticatedUser) {
           reply.status(401).send({ error: 'Not authenticated' });

@@ -50,7 +50,7 @@ const companyRoutes: FastifyPluginAsync = async (fastify) => {
 
       sendSuccess(reply, company, 'Company information saved successfully');
     } catch (error) {
-      fastify.log.error('Failed to save company:', error);
+      fastify.log.error('Failed to save company:', error as Error);
       handleError(reply, 500, 'Failed to save company', 'An error occurred while saving company information');
     }
   });
@@ -67,7 +67,7 @@ const companyRoutes: FastifyPluginAsync = async (fastify) => {
 
       sendSuccess(reply, userCompany);
     } catch (error) {
-      fastify.log.error('Failed to fetch company:', error);
+      fastify.log.error('Failed to fetch company:', error as Error);
       handleError(reply, 500, 'Failed to fetch company', 'An error occurred while fetching company information');
     }
   });

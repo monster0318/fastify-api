@@ -53,7 +53,7 @@ const kycRoutes: FastifyPluginAsync = async (fastify) => {
     });
     if (!company) return reply.status(404).send({ error: 'No company found' });
 
-    return reply.send({ kycVerified: company.kycVerified, personaId: company.personaId || null });
+    return reply.send({ kycVerified: company.kycVerified });
   });
 };
 

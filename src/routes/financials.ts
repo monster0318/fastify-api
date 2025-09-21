@@ -26,7 +26,7 @@ const financialsRoutes: FastifyPluginAsync = async (fastify) => {
 
       sendSuccess(reply, { financialsLinked: true }, 'Financials linked successfully');
     } catch (error) {
-      fastify.log.error('Failed to link financials:', error);
+      fastify.log.error('Failed to link financials:', error as Error);
       handleError(reply, 500, 'Failed to link financials', 'An error occurred while linking financials');
     }
   });
@@ -45,7 +45,7 @@ const financialsRoutes: FastifyPluginAsync = async (fastify) => {
         financialsLinked: userCompany.financialsLinked 
       });
     } catch (error) {
-      fastify.log.error('Failed to get financials status:', error instanceof Error ? error.message : String(error));
+      fastify.log.error('Failed to get financials status:', error as Error);
       handleError(reply, 500, 'Failed to get financials status', 'An error occurred while fetching financials status');
     }
   });

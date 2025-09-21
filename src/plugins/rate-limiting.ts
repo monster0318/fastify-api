@@ -18,7 +18,6 @@ async function rateLimitPlugin(fastify: FastifyInstance) {
 
   await fastify.register(rateLimit, {
     keyGenerator: (request: FastifyRequest) => {
-
       return request.user?.id || request.ip;
     },
     ...rateLimits.general

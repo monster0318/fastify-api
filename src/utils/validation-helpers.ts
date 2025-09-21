@@ -67,8 +67,8 @@ export function validateRequestBody<T>(
     return { success: true, data: result.data };
   }
   
-  const errorMessage = result.error.errors
-    .map(err => `${err.path.join('.')}: ${err.message}`)
+  const errorMessage = result.error.issues
+    .map((err: any) => `${err.path.join('.')}: ${err.message}`)
     .join(', ');
     
   return { success: false, error: errorMessage };

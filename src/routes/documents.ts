@@ -35,7 +35,7 @@ const documentRoutes: FastifyPluginAsync = async (fastify) => {
       }
 
       const uploadedFilesIterator = await request.files();
-      const filesToScan = [];
+      const filesToScan: Array<{ buffer: Buffer; filename: string; mimetype: string }> = [];
       const fileValidationErrors = [];
       let totalFiles = 0;
 
@@ -81,10 +81,10 @@ const documentRoutes: FastifyPluginAsync = async (fastify) => {
         
         const infectedFiles = virusScanResults.filter(result => !result.clean);
         if (infectedFiles.length > 0) {
-          const infectedFileDetails = infectedFiles.map(result => ({
-            filename: filesToScan.find(f => f.filename === result.threats[0])?.filename,
-            threats: result.threats || ['Unknown threat']
-          }));
+        const infectedFileDetails = infectedFiles.map(result => ({
+          filename: filesToScan.find(f => f.filename === result.threats?.[0])?.filename,
+          threats: result.threats || ['Unknown threat']
+        }));
           return handleError(reply, 400, 'Virus scan failed', `Infected files detected: ${infectedFileDetails.map(f => f.filename).join(', ')}`);
         }
         
@@ -128,7 +128,7 @@ const documentRoutes: FastifyPluginAsync = async (fastify) => {
           );
 
         } catch (dbError) {
-          uploadErrors.push(`Database error for file ${fileToSave.filename}: ${dbError.message}`);
+          uploadErrors.push(`Database error for file ${fileToSave.filename}: ${(dbError as Error).message}`);
           console.error(`💥 [UPLOAD] Database or notification error for file ${fileToSave.filename}:`, dbError);
         }
       }
@@ -137,7 +137,7 @@ const documentRoutes: FastifyPluginAsync = async (fastify) => {
         return handleError(reply, 500, 'Partial upload failure', uploadErrors.join(' '));
       }
 
-      sendSuccess(reply, 201, 'Files uploaded successfully', uploadedDocuments);
+      sendSuccess(reply, uploadedDocuments, 'Files uploaded successfully');
       
     } catch (error) {
       console.error('❌ [UPLOAD] Global error during upload:', error);
@@ -173,7 +173,7 @@ const documentRoutes: FastifyPluginAsync = async (fastify) => {
 
       sendSuccess(reply, documents);
     } catch (error) {
-      fastify.log.error('Failed to fetch documents:', error);
+      fastify.log.error('Failed to fetch documents:', error as Error);
       handleError(reply, 500, 'Failed to fetch documents', 'An error occurred while fetching documents');
     }
   });
@@ -230,13 +230,13 @@ const documentRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.send(fileStream);
       } catch (streamError) {
         console.log('💥 [DOWNLOAD] File stream error:', streamError);
-        fastify.log.error('Failed to create file stream:', streamError);
+        fastify.log.error('Failed to create file stream:', streamError as Error);
         return handleError(reply, 500, 'File access error', 'Unable to access the requested file');
       }
       
     } catch (error) {
       console.log('💥 [DOWNLOAD] Critical download error:', error);
-      fastify.log.error('Document download error:', error);
+      fastify.log.error('Document download error:', error as Error);
       handleError(reply, 500, 'Download failed', 'An error occurred while downloading the document');
     }
   });
@@ -311,13 +311,13 @@ const documentRoutes: FastifyPluginAsync = async (fastify) => {
         
       } catch (deleteError) {
         console.log('💥 [DELETE] Error during deletion:', deleteError);
-        fastify.log.error('Document deletion error:', deleteError);
+        fastify.log.error('Document deletion error:', deleteError as Error);
         return handleError(reply, 500, 'Deletion failed', 'An error occurred while deleting the document');
       }
       
     } catch (error) {
       console.log('💥 [DELETE] Critical deletion error:', error);
-      fastify.log.error('Document deletion error:', error);
+      fastify.log.error('Document deletion error:', error as Error);
       handleError(reply, 500, 'Deletion failed', 'An error occurred while deleting the document');
     }
   });

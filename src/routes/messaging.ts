@@ -1,6 +1,6 @@
 import { FastifyPluginAsync } from 'fastify';
-import { requireAuthentication } from '../utils/auth-helpers.ts';
-import { messageSchema } from '../utils/validation-helpers.ts';
+import { requireAuthentication } from '../utils/auth-helpers.js';
+import { messageSchema } from '../utils/validation-helpers.js';
 import Ably from 'ably';
 
 const messageRoutes: FastifyPluginAsync = async (fastify) => {

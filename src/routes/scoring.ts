@@ -35,7 +35,7 @@ const scoringRoutes: FastifyPluginAsync = async (fastify) => {
         scorePercentage: Math.round((scoringResult.score / 100) * 100)
       });
     } catch (error) {
-      fastify.log.error('Failed to compute investment score:', error);
+      fastify.log.error('Failed to compute investment score:', error as Error);
       handleError(reply, 500, 'Failed to compute score', 'An error occurred while computing the investment score');
     }
   });

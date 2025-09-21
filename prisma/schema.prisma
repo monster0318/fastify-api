@@ -30,6 +30,7 @@ model Company {
   createdAt        DateTime     @default(now()) 
   user             User         @relation(fields: [userId], references: [id])
   documents        Document[]
+  messages         Message[]
 }
 
 model Document {
@@ -51,4 +52,14 @@ model Notification {
   createdAt DateTime @default(now())
   readAt    DateTime?
   user      User     @relation(fields: [userId], references: [id])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  companyId String
+  userId    String
+  sender    String
+  text      String
+  createdAt DateTime @default(now())
+  company   Company  @relation(fields: [companyId], references: [id])
 }

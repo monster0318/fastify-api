@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import Fastify from 'fastify';
+import Fastify, { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 
 describe('Notification Routes', () => {
-  let fastify: any;
+  let fastify: FastifyInstance;
 
   beforeEach(async () => {
     fastify = Fastify({ logger: false });
@@ -19,8 +19,8 @@ describe('Notification Routes', () => {
     fastify.decorate('prisma', mockPrisma);
     
     // Register routes with mocked authentication
-    await fastify.register(async (fastify) => {
-      fastify.get('/', async (request, reply) => {
+    await fastify.register(async (fastify: FastifyInstance) => {
+      fastify.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
         if (!request.user) return reply.status(401).send({ error: 'not authenticated' });
 
         const { page = 1, limit = 20, unreadOnly = false } = request.query as any;
@@ -52,7 +52,7 @@ describe('Notification Routes', () => {
         });
       });
 
-      fastify.post('/read/:id', async (request, reply) => {
+      fastify.post('/read/:id', async (request: FastifyRequest, reply: FastifyReply) => {
         if (!request.user) return reply.status(401).send({ error: 'not authenticated' });
 
         const { id } = request.params as { id: string };
@@ -69,7 +69,7 @@ describe('Notification Routes', () => {
         return reply.send({ updated: updated.count });
       });
 
-      fastify.get('/stats', async (request, reply) => {
+      fastify.get('/stats', async (request: FastifyRequest, reply: FastifyReply) => {
         if (!request.user) return reply.status(401).send({ error: 'not authenticated' });
 
         const [total, unread] = await Promise.all([
