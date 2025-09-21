@@ -21,7 +21,8 @@ log_info() {
 }
 
 log_warn() {
-    echo -e "${YELLOW}[WARN]${NC} $1"
+-    echo -e "${YELLOW}[WARN]${NC} $1"
++    echo -e "${YELLOW}[WARN]${NC} $1"
 }
 
 log_error() {
@@ -81,71 +82,31 @@ restart_services() {
     log_info "Services restarted!"
 }
 
-run_migrations() {
-    log_info "Running database migrations..."
-    # ... (rest of the run_migrations function remains the same) ...
-    # This part of your script should now work without the OCI error
-    # because permissions were fixed by the 'fix_permissions' function.
+seed_database() {
+    log_info "Seeding database..."
     
     # Wait for container to be ready
-    log_info "Waiting for container to be ready..."
-    sleep 30
-    
-    # Check if container is running (don't wait for health check since DB doesn't exist yet)
-    local max_wait=60
+    log_info "Waiting for container to be healthy for seeding..."
+    local max_wait=120
     local wait_time=0
     
     while [ $wait_time -lt $max_wait ]; do
-        if docker-compose -f "$COMPOSE_FILE" ps api | grep -q "Up"; then
-            log_info "Container is running. Ready for migrations!"
+        if docker-compose -f "$COMPOSE_FILE" ps api | grep -q "healthy"; then
+            log_info "Container is healthy. Ready for seeding!"
             break
         fi
-        log_info "Waiting for container to be running... (${wait_time}s/${max_wait}s)"
+        log_info "Waiting for container to be healthy... (${wait_time}s/${max_wait}s)"
         sleep 10
         wait_time=$((wait_time + 10))
     done
     
     if [ $wait_time -ge $max_wait ]; then
-        log_error "Container did not start within ${max_wait} seconds"
+        log_error "Container did not become healthy within ${max_wait} seconds"
         log_error "Container logs:"
         docker-compose -f "$COMPOSE_FILE" logs api
         return 1
     fi
-    
-    # Run migrations with retry logic
-    local max_attempts=3
-    local attempt=1
-    
-    while [ $attempt -le $max_attempts ]; do
-        log_info "Migration attempt $attempt/$max_attempts..."
-        if docker-compose -f "$COMPOSE_FILE" exec -T --user fastify api npx prisma migrate deploy; then
-            log_info "Migrations completed!"
-            return 0
-        else
-            log_warn "Migration attempt $attempt failed. Retrying in 10 seconds..."
-            log_warn "Container logs:"
-            docker-compose -f "$COMPOSE_FILE" logs --tail=20 api
-            sleep 10
-            ((attempt++))
-        fi
-    done
-    
-    log_error "All migration attempts failed!"
-    return 1
-}
 
-seed_database() {
-    log_info "Seeding database..."
-    
-    # Check if container is running and ready
-    if ! docker-compose -f "$COMPOSE_FILE" ps api | grep -q "Up"; then
-        log_error "Container is not running. Cannot seed database."
-        return 1
-    fi
-    
-    # Wait a bit more to ensure migrations are complete
-    sleep 10
-    
     # Run seeding with retry logic
     local max_attempts=3
     local attempt=1
@@ -214,10 +175,12 @@ case "${1:-help}" in
         build_images
         stop_services
         start_services
+        seed_database
         log_info "Deployment completed successfully!"
         ;;
     "migrate")
-        run_migrations
+        log_warn "Migrations are now run automatically by the docker-entrypoint.sh script."
+        log_warn "Run 'deploy' to perform migrations."
         ;;
     "seed")
         seed_database
@@ -244,8 +207,8 @@ case "${1:-help}" in
         echo "  start     - Start the service"
         echo "  stop      - Stop the service"
         echo "  restart   - Restart the service"
-        echo "  deploy    - Full deployment (build, start, migrate, seed)"
-        echo "  migrate   - Run database migrations"
+        echo "  deploy    - Full deployment (build, start, seed)"
+        echo "  migrate   - Migrations are now automated during deploy."
         echo "  seed      - Seed the database"
         echo "  logs      - Show service logs"
         echo "  status    - Show service status"
