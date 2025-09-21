@@ -1,5 +1,5 @@
 import { FastifyPluginAsync } from 'fastify';
-import { requireAuthentication } from '../utils/auth-helpers.ts';
+import { requireAuthentication } from '../utils/auth-helpers.js';
 
 const notificationRoutes: FastifyPluginAsync = async (fastify) => {
 

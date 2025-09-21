@@ -1,13 +1,13 @@
 
 import { FastifyInstance } from 'fastify';
-import authRoutes from './auth.ts';
-import companyRoutes from './companies.ts';
-import kycRoutes from './kyc.ts';
-import financialsRoutes from './financials.ts';
-import documentRoutes from './documents.ts';
-import scoreRoutes from './scoring.ts';
-import notificationRoutes from './notifications.ts';
-import capitalTableRoutes from './capital-table.ts';
+import authRoutes from './auth.js';
+import companyRoutes from './companies.js';
+import kycRoutes from './kyc.js';
+import financialsRoutes from './financials.js';
+import documentRoutes from './documents.js';
+import scoreRoutes from './scoring.js';
+import notificationRoutes from './notifications.js';
+import capitalTableRoutes from './capital-table.js';
 
 export default async function registerRoutes(fastify: FastifyInstance) {
   fastify.get('/health', async (request, reply) => {

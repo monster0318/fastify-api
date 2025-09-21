@@ -34,11 +34,11 @@ const uploadsDir = path.join(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
 
-import registerRoutes from './routes/index.ts';
-import authenticationPlugin from './plugins/authentication.ts';
-import notificationPlugin from './plugins/notification.ts';
-import rateLimitPlugin from './plugins/rate-limiting.ts';
-import virusScanPlugin from './plugins/virus-scanning.ts';
+import registerRoutes from './routes/index.js';
+import authenticationPlugin from './plugins/authentication.js';
+import notificationPlugin from './plugins/notification.js';
+import rateLimitPlugin from './plugins/rate-limiting.js';
+import virusScanPlugin from './plugins/virus-scanning.js';
 
 await server.register(notificationPlugin);
 await server.register(authenticationPlugin);
