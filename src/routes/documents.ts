@@ -173,7 +173,7 @@ const documentRoutes: FastifyPluginAsync = async (fastify) => {
 
       sendSuccess(reply, documents);
     } catch (error) {
-      fastify.log.error('Failed to fetch documents:', error as Error);
+      fastify.log.error(error as Error, 'Failed to fetch documents:');
       handleError(reply, 500, 'Failed to fetch documents', 'An error occurred while fetching documents');
     }
   });
@@ -230,13 +230,13 @@ const documentRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.send(fileStream);
       } catch (streamError) {
         console.log('💥 [DOWNLOAD] File stream error:', streamError);
-        fastify.log.error('Failed to create file stream:', streamError as Error);
+        fastify.log.error(streamError as Error, 'Failed to create file stream:');
         return handleError(reply, 500, 'File access error', 'Unable to access the requested file');
       }
       
     } catch (error) {
       console.log('💥 [DOWNLOAD] Critical download error:', error);
-      fastify.log.error('Document download error:', error as Error);
+      fastify.log.error(error as Error, 'Document download error:');
       handleError(reply, 500, 'Download failed', 'An error occurred while downloading the document');
     }
   });
@@ -304,20 +304,20 @@ const documentRoutes: FastifyPluginAsync = async (fastify) => {
           `Document "${document.name}" has been successfully deleted`
         );
 
-        sendSuccess(reply, 200, 'Document deleted successfully', { 
+        sendSuccess(reply, { 
           id: documentId, 
           name: document.name 
-        });
+        }, 'Document deleted successfully');
         
       } catch (deleteError) {
         console.log('💥 [DELETE] Error during deletion:', deleteError);
-        fastify.log.error('Document deletion error:', deleteError as Error);
+        fastify.log.error(deleteError as Error, 'Document deletion error:');
         return handleError(reply, 500, 'Deletion failed', 'An error occurred while deleting the document');
       }
       
     } catch (error) {
       console.log('💥 [DELETE] Critical deletion error:', error);
-      fastify.log.error('Document deletion error:', error as Error);
+      fastify.log.error(error as Error, 'Document deletion error:');
       handleError(reply, 500, 'Deletion failed', 'An error occurred while deleting the document');
     }
   });

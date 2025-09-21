@@ -61,7 +61,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
         token: authToken
       }, 'Account created successfully');
     } catch (error) {
-      fastify.log.error('User registration error:', error as Error);
+      fastify.log.error(error as Error, 'User registration error:');
       handleError(reply, 500, 'Registration failed', 'An error occurred while creating your account');
     }
   });
@@ -112,7 +112,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
         token: authToken
       }, 'Login successful');
     } catch (error) {
-      fastify.log.error('User login error:', error as Error);
+      fastify.log.error(error as Error, 'User login error:');
       handleError(reply, 500, 'Login failed', 'An error occurred while authenticating');
     }
   });
@@ -148,7 +148,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
 
       sendSuccess(reply, user);
     } catch (error) {
-      fastify.log.error('Failed to fetch user data:', error as Error);
+      fastify.log.error(error as Error, 'Failed to fetch user data:');
       handleError(reply, 500, 'Failed to fetch user data', 'An error occurred while fetching user information');
     }
   });

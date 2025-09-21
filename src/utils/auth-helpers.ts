@@ -8,7 +8,7 @@ export function requireAuthentication(request: FastifyRequest, reply: FastifyRep
     });
     return null;
   }
-  return request.user;
+  return request.user as { id: string; email: string; name: string };
 }
 
 export async function getUserCompany(

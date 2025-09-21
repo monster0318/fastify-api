@@ -18,7 +18,7 @@ async function rateLimitPlugin(fastify: FastifyInstance) {
 
   await fastify.register(rateLimit, {
     keyGenerator: (request: FastifyRequest) => {
-      return request.user?.id || request.ip;
+      return (request.user as any)?.id || request.ip;
     },
     ...rateLimits.general
   });
@@ -28,7 +28,7 @@ async function rateLimitPlugin(fastify: FastifyInstance) {
   
   fastify.addHook('preHandler', async (request, reply) => {
     if (request.raw.url?.startsWith('/api/auth')) {
-      const key = request.user?.id || request.ip;
+      const key = (request.user as any)?.id || request.ip;
       const now = Date.now();
       const windowMs = 15 * 60 * 1000; // 15 minutes
       

@@ -16,7 +16,7 @@ describe('Notification Routes', () => {
       },
     };
     
-    fastify.decorate('prisma', mockPrisma);
+    fastify.decorate('prisma', mockPrisma as any);
     
     // Register routes with mocked authentication
     await fastify.register(async (fastify: FastifyInstance) => {
@@ -26,7 +26,7 @@ describe('Notification Routes', () => {
         const { page = 1, limit = 20, unreadOnly = false } = request.query as any;
         const skip = (page - 1) * limit;
 
-        const where: any = { userId: request.user.id };
+        const where: any = { userId: (request.user as any).id };
         if (unreadOnly) {
           where.readAt = null;
         }
@@ -58,7 +58,7 @@ describe('Notification Routes', () => {
         const { id } = request.params as { id: string };
 
         const updated = await fastify.prisma.notification.updateMany({
-          where: { id, userId: request.user.id },
+          where: { id, userId: (request.user as any).id },
           data: { readAt: new Date() },
         });
 
@@ -74,11 +74,11 @@ describe('Notification Routes', () => {
 
         const [total, unread] = await Promise.all([
           fastify.prisma.notification.count({
-            where: { userId: request.user.id }
+            where: { userId: (request.user as any).id }
           }),
           fastify.prisma.notification.count({
             where: { 
-              userId: request.user.id,
+              userId: (request.user as any).id,
               readAt: null
             }
           })

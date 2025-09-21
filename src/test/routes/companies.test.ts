@@ -28,7 +28,7 @@ describe('Company Routes', () => {
       },
     };
     
-    fastify.decorate('prisma', mockPrisma);
+    fastify.decorate('prisma', mockPrisma as any);
     
     // Register routes with mocked dependencies
     await fastify.register(async (fastify: FastifyInstance) => {
@@ -69,7 +69,7 @@ describe('Company Routes', () => {
 
           mockSendSuccess(reply, company, 'Company information saved successfully');
         } catch (error) {
-          fastify.log.error('Failed to save company:', error);
+          fastify.log.error(error as Error, 'Failed to save company:');
           reply.status(500).send({ error: 'Failed to save company' });
         }
       });
@@ -87,7 +87,7 @@ describe('Company Routes', () => {
 
           mockSendSuccess(reply, userCompany);
         } catch (error) {
-          fastify.log.error('Failed to fetch company:', error);
+          fastify.log.error(error as Error, 'Failed to fetch company:');
           reply.status(500).send({ error: 'Failed to fetch company' });
         }
       });
@@ -117,8 +117,8 @@ describe('Company Routes', () => {
       });
 
       // Mock database calls
-      fastify.prisma.company.findFirst.mockResolvedValue(null);
-      fastify.prisma.company.create.mockResolvedValue({
+      (fastify.prisma.company.findFirst as any).mockResolvedValue(null);
+      (fastify.prisma.company.create as any).mockResolvedValue({
         id: 'company-123',
         name: 'Test Company',
         sector: 'Technology',

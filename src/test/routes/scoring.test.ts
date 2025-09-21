@@ -24,7 +24,7 @@ describe('Scoring Routes', () => {
       },
     };
     
-    fastify.decorate('prisma', mockPrisma);
+    fastify.decorate('prisma', mockPrisma as any);
     
     // Register routes with mocked dependencies
     await fastify.register(async (fastify: FastifyInstance) => {
@@ -59,7 +59,7 @@ describe('Scoring Routes', () => {
             scorePercentage: Math.round((scoringResult.score / 100) * 100)
           });
         } catch (error) {
-          fastify.log.error('Failed to compute investment score:', error);
+          fastify.log.error(error as Error, 'Failed to compute investment score:');
           reply.status(500).send({ error: 'Failed to compute score' });
         }
       });
@@ -88,7 +88,7 @@ describe('Scoring Routes', () => {
       };
 
       mockGetUserCompany.mockResolvedValue(mockCompany);
-      fastify.prisma.document.count.mockResolvedValue(5);
+      (fastify.prisma.document.count as any).mockResolvedValue(5);
 
       const response = await fastify.inject({
         method: 'GET',
@@ -143,7 +143,7 @@ describe('Scoring Routes', () => {
       mockGetUserCompany.mockResolvedValue(mockCompany);
       
       // Mock database error
-      fastify.prisma.document.count.mockRejectedValue(new Error('Database connection failed'));
+      (fastify.prisma.document.count as any).mockRejectedValue(new Error('Database connection failed'));
 
       const response = await fastify.inject({
         method: 'GET',

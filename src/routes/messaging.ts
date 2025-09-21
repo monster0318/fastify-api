@@ -26,7 +26,7 @@ const messageRoutes: FastifyPluginAsync = async (fastify) => {
 
       return reply.send({ token: tokenRequest });
     } catch (error) {
-      fastify.log.error('Failed to generate Ably token:', error as Error);
+      fastify.log.error(error as Error, 'Failed to generate Ably token:');
       return reply.status(500).send({ error: 'Failed to generate chat token' });
     }
   });
@@ -75,7 +75,7 @@ const messageRoutes: FastifyPluginAsync = async (fastify) => {
         companyId: message.companyId
       });
     } catch (error) {
-      fastify.log.error('Failed to send message:', error as Error);
+      fastify.log.error(error as Error, 'Failed to send message:');
       return reply.status(500).send({ error: 'Failed to send message' });
     }
   });
@@ -123,7 +123,7 @@ const messageRoutes: FastifyPluginAsync = async (fastify) => {
         }
       });
     } catch (error) {
-      fastify.log.error('Failed to fetch messages:', error as Error);
+      fastify.log.error(error as Error, 'Failed to fetch messages:');
       return reply.status(500).send({ error: 'Failed to fetch messages' });
     }
   });
