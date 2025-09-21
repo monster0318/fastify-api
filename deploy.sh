@@ -118,7 +118,7 @@ run_migrations() {
     
     while [ $attempt -le $max_attempts ]; do
         log_info "Migration attempt $attempt/$max_attempts..."
-        if docker-compose -f "$COMPOSE_FILE" exec -T api npx prisma migrate deploy; then
+        if docker-compose -f "$COMPOSE_FILE" exec -T --user fastify api npx prisma migrate deploy; then
             log_info "Migrations completed!"
             return 0
         else
@@ -152,7 +152,7 @@ seed_database() {
     
     while [ $attempt -le $max_attempts ]; do
         log_info "Seeding attempt $attempt/$max_attempts..."
-        if docker-compose -f "$COMPOSE_FILE" exec -T api npx prisma db seed; then
+        if docker-compose -f "$COMPOSE_FILE" exec -T --user fastify api npx prisma db seed; then
             log_info "Database seeded!"
             return 0
         else
