@@ -13,6 +13,14 @@ if [ "$(id -u)" = "0" ]; then
         chown -R fastify:nodejs /app/uploads
     fi
     
+    # Fix permissions for any existing database files
+    if [ -f "/app/data/prod.db" ]; then
+        chown fastify:nodejs /app/data/prod.db
+    fi
+    
+    # Ensure the data directory is writable
+    chmod 755 /app/data
+    
     # Switch to fastify user
     exec su-exec fastify "$@"
 else
