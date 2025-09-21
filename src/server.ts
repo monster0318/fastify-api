@@ -11,7 +11,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-const server = Fastify({ logger: false });
+const server = Fastify({ logger: true });
 
 await server.register(cors, { 
   origin: process.env.ALLOWED_ORIGINS?.split(',') || [], 

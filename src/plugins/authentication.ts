@@ -36,8 +36,18 @@ async function authenticationPlugin(fastify: FastifyInstance): Promise<void> {
   const shouldSkipAuthentication = (requestUrl?: string): boolean => {
     if (!requestUrl) return false;
     
-    return requestUrl.startsWith(AUTHENTICATION_CONFIG.ROUTES_PREFIX) && 
-           !requestUrl.endsWith(AUTHENTICATION_CONFIG.ME_ENDPOINT);
+    // Skip authentication for auth routes (except /me endpoint)
+    if (requestUrl.startsWith(AUTHENTICATION_CONFIG.ROUTES_PREFIX) && 
+        !requestUrl.endsWith(AUTHENTICATION_CONFIG.ME_ENDPOINT)) {
+      return true;
+    }
+    
+    // Skip authentication for health check endpoint
+    if (requestUrl === '/health') {
+      return true;
+    }
+    
+    return false;
   };
 
   const verifyJwtToken = async (token: string): Promise<AuthUser> => {
