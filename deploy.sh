@@ -85,28 +85,30 @@ run_migrations() {
     
     # Wait for container to be ready
     log_info "Waiting for container to be ready..."
-    sleep 15
+    sleep 30
     
     # Check if container is running and healthy
-    local max_wait=60
+    local max_wait=120
     local wait_time=0
     
     while [ $wait_time -lt $max_wait ]; do
         if docker-compose -f "$COMPOSE_FILE" ps api | grep -q "Up"; then
             log_info "Container is running. Checking health..."
-            # Try to connect to the container
-            if docker-compose -f "$COMPOSE_FILE" exec -T api node -e "console.log('Container ready')" 2>/dev/null; then
+            # Try to connect to the container and check if the app is responding
+            if docker-compose -f "$COMPOSE_FILE" exec -T api node -e "require('http').get('http://localhost:4000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })" 2>/dev/null; then
                 log_info "Container is ready for migrations!"
                 break
             fi
         fi
         log_info "Waiting for container to be ready... (${wait_time}s/${max_wait}s)"
-        sleep 5
-        wait_time=$((wait_time + 5))
+        sleep 10
+        wait_time=$((wait_time + 10))
     done
     
     if [ $wait_time -ge $max_wait ]; then
         log_error "Container did not become ready within ${max_wait} seconds"
+        log_error "Container logs:"
+        docker-compose -f "$COMPOSE_FILE" logs api
         return 1
     fi
     
@@ -121,6 +123,8 @@ run_migrations() {
             return 0
         else
             log_warn "Migration attempt $attempt failed. Retrying in 10 seconds..."
+            log_warn "Container logs:"
+            docker-compose -f "$COMPOSE_FILE" logs --tail=20 api
             sleep 10
             ((attempt++))
         fi
@@ -139,6 +143,9 @@ seed_database() {
         return 1
     fi
     
+    # Wait a bit more to ensure migrations are complete
+    sleep 10
+    
     # Run seeding with retry logic
     local max_attempts=3
     local attempt=1
@@ -150,6 +157,8 @@ seed_database() {
             return 0
         else
             log_warn "Seeding attempt $attempt failed. Retrying in 10 seconds..."
+            log_warn "Container logs:"
+            docker-compose -f "$COMPOSE_FILE" logs --tail=20 api
             sleep 10
             ((attempt++))
         fi
