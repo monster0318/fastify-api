@@ -14,7 +14,7 @@ const prisma = new PrismaClient();
 const server = Fastify({ logger: false });
 
 await server.register(cors, { 
-  origin: true, 
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || [], 
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
