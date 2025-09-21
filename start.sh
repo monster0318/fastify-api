@@ -2,4 +2,4 @@
 set -e
 
 # Start the Node.js application
-node dist/server.js
+node dist/src/server.js
