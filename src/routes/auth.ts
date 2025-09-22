@@ -82,13 +82,13 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
       });
       
       if (!user) {
-        return handleError(reply, 401, 'Invalid credentials', 'Email or password is incorrect');
+        return handleError(reply, 400, 'Invalid credentials', 'Email or password is incorrect');
       }
 
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
-        return handleError(reply, 401, 'Invalid credentials', 'Email or password is incorrect');
+        return handleError(reply, 400, 'Invalid credentials', 'Email or password is incorrect');
       }
 
 
