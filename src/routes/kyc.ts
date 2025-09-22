@@ -29,7 +29,7 @@ const kycRoutes: FastifyPluginAsync = async (fastify) => {
         );
       }
 
-      return reply.send({ ok: true, verified });
+      return reply.send({ ok: true, verified, message: verified ? 'KYC verified successfully' : 'KYC verification failed'});
     } catch (err: any) {
       fastify.log.error(err);
 
