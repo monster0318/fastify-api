@@ -30,8 +30,8 @@ await server.register(websocket);
 server.decorate('prisma', prisma);
 
 
-const uploadsDir = path.join(process.cwd(), 'uploads');
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+const uploadDir = process.env.UPLOADS_DIR || path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 
 import registerRoutes from './routes/index.js';
