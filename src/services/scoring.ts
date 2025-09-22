@@ -65,7 +65,7 @@ export function calculateScore(params: ScoreParams): ScoreResult {
   );
   totalScore += revScore;
   if (params.revenue < WEIGHTS.REV_MAX) {
-    recommendations.push(`Increase revenue to ${WEIGHTS.REV_MAX}`);
+    recommendations.push(`Increase revenue up to ${WEIGHTS.REV_MAX}`);
   }
 
   return { 
